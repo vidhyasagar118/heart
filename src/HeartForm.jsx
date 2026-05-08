@@ -1,0 +1,756 @@
+import React, { useState, useRef } from "react";
+import axios from "axios";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import "./HeartForm.css";
+
+const HeartForm = () => {
+  const reportRef = useRef();
+
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    patientName: "",
+    age: 40,
+    gender: 1,
+    chestpain: 0,
+    restingBP: 120,
+    serumcholestrol: 180,
+    fastingbloodsugar: 0,
+    restingrelectro: 0,
+    maxheartrate: 150,
+    exerciseangia: 0,
+    oldpeak: 0,
+    slope: 1,
+    noofmajorvessels: 0,
+  });
+
+  const [result, setResult] = useState(null);
+
+  // WARNING MESSAGE
+
+  const getWarningMessage = () => {
+    if (!result) return "";
+
+    if (result.probability >= 80) {
+      return "🚨 Critical Risk Detected! Immediate medical attention is strongly recommended.";
+    }
+
+    if (result.probability >= 60) {
+      return "⚠️ High heart disease risk detected. Please consult a cardiologist soon.";
+    }
+
+    if (result.probability >= 40) {
+      return "🩺 Moderate risk detected. Maintain a healthy diet and regular exercise.";
+    }
+
+    if (result.probability >= 20) {
+      return "💡 Mild risk detected. Regular health checkups are recommended.";
+    }
+
+    return "✅ Low risk detected. Keep maintaining a healthy lifestyle.";
+  };
+
+  // DYNAMIC PRECAUTIONS
+
+  const getPrecautions = () => {
+    if (!result) return [];
+
+    if (result.probability >= 80) {
+      return [
+        "Immediately consult a cardiologist",
+        "Avoid heavy physical activities",
+        "Monitor blood pressure daily",
+        "Take prescribed medications regularly",
+        "Avoid smoking and alcohol",
+        "Maintain emergency medical support access",
+      ];
+    }
+
+    if (result.probability >= 60) {
+      return [
+        "Schedule a full cardiac checkup",
+        "Walk 20-30 minutes daily",
+        "Reduce stress and anxiety",
+        "Limit salt and oily foods",
+        "Monitor cholesterol regularly",
+        "Sleep at least 7 hours daily",
+      ];
+    }
+
+    if (result.probability >= 40) {
+      return [
+        "Exercise regularly",
+        "Reduce junk food intake",
+        "Drink more water",
+        "Practice yoga or meditation",
+        "Avoid excessive sugar",
+        "Maintain healthy body weight",
+      ];
+    }
+
+    if (result.probability >= 20) {
+      return [
+        "Continue regular health checkups",
+        "Maintain active lifestyle",
+        "Sleep properly",
+        "Avoid stress",
+        "Drink enough water",
+      ];
+    }
+
+    return [
+      "Maintain healthy lifestyle",
+      "Exercise regularly",
+      "Eat balanced diet",
+      "Stay hydrated",
+      "Continue annual health checkups",
+    ];
+  };
+
+  // DYNAMIC DIET
+
+  const getDietRecommendations = () => {
+    if (!result) return [];
+
+    if (result.probability >= 80) {
+      return [
+        "Strict low-fat diet",
+        "Avoid fried and processed foods",
+        "Eat oats and high-fiber foods",
+        "Consume green vegetables daily",
+        "Avoid sugary drinks",
+        "Reduce sodium intake",
+      ];
+    }
+
+    if (result.probability >= 60) {
+      return [
+        "Increase fruits and vegetables",
+        "Eat lean protein foods",
+        "Reduce red meat consumption",
+        "Use olive oil instead of butter",
+        "Drink green tea",
+        "Limit fast food",
+      ];
+    }
+
+    if (result.probability >= 40) {
+      return [
+        "Balanced homemade meals",
+        "Add fruits to breakfast",
+        "Avoid cold drinks",
+        "Increase protein intake",
+        "Reduce oily snacks",
+        "Drink 2-3 liters water daily",
+      ];
+    }
+
+    if (result.probability >= 20) {
+      return [
+        "Maintain balanced diet",
+        "Eat seasonal fruits",
+        "Avoid overeating",
+        "Drink enough water",
+        "Limit sugar intake",
+      ];
+    }
+
+    return [
+      "Continue healthy eating habits",
+      "Eat fresh vegetables",
+      "Maintain proper hydration",
+      "Avoid junk food",
+      "Include fiber-rich foods",
+    ];
+  };
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData({
+      ...formData,
+      [name]:
+        name === "patientName"
+          ? value
+          : Number(value),
+    });
+  };
+
+  // SUBMIT
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:5000/predict",
+        formData
+      );
+
+      setTimeout(() => {
+        setResult(res.data);
+        setLoading(false);
+      }, 800);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+  };
+
+  // DOWNLOAD PDF
+
+  const downloadPDF = async () => {
+    const input = reportRef.current;
+
+    input.style.display = "block";
+
+    const canvas = await html2canvas(input, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pdfWidth = 210;
+    const pageHeight = 295;
+
+    const imgWidth = 210;
+
+    const imgHeight =
+      (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+
+    let position = 0;
+
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      position,
+      imgWidth,
+      imgHeight
+    );
+
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+
+      pdf.addPage();
+
+      pdf.addImage(
+        imgData,
+        "PNG",
+        0,
+        position,
+        imgWidth,
+        imgHeight
+      );
+
+      heightLeft -= pageHeight;
+    }
+
+    input.style.display = "none";
+
+    pdf.save("CardioAI_Report.pdf");
+  };
+
+  return (
+    <div className="main-container">
+      <div className="glass-card">
+        <h1><img src="/heart.gif" height={"80px"} width={"80px"} alt="heart" />  Heart Disease Prediction 🫀</h1>
+
+        <p className="subtitle">
+          Fill patient details and symptoms below
+        </p>
+
+        <div className="divider"></div>
+
+        <h2>👤 Patient Information</h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className="grid">
+
+            {/* PATIENT NAME */}
+
+            <div className="input-group">
+              <label>Patient Name</label>
+
+              <input
+                type="text"
+                name="patientName"
+                placeholder="Enter patient name"
+                value={formData.patientName}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* AGE */}
+
+            <div className="input-group">
+              <label>Age</label>
+
+              <input
+                type="range"
+                min="20"
+                max="90"
+                value={formData.age}
+                name="age"
+                onChange={handleChange}
+              />
+
+              <span>{formData.age}</span>
+            </div>
+
+            {/* GENDER */}
+
+            <div className="input-group">
+              <label>Gender</label>
+
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+              >
+                <option value="1">Male</option>
+                <option value="0">Female</option>
+              </select>
+            </div>
+
+            {/* CHEST PAIN */}
+
+            <div className="input-group">
+              <label>Chest Pain</label>
+
+              <select
+                name="chestpain"
+                value={formData.chestpain}
+                onChange={handleChange}
+              >
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+              </select>
+            </div>
+
+            {/* BP */}
+
+            <div className="input-group">
+              <label>Blood Pressure</label>
+
+              <input
+                type="number"
+                name="restingBP"
+                value={formData.restingBP}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* CHOLESTEROL */}
+
+            <div className="input-group">
+              <label>Cholesterol</label>
+
+              <input
+                type="number"
+                name="serumcholestrol"
+                value={formData.serumcholestrol}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* BLOOD SUGAR */}
+
+            <div className="input-group">
+              <label>Blood Sugar</label>
+
+              <select
+                name="fastingbloodsugar"
+                value={formData.fastingbloodsugar}
+                onChange={handleChange}
+              >
+                <option value="0">Normal</option>
+                <option value="1">High</option>
+              </select>
+            </div>
+
+            {/* ECG */}
+
+            <div className="input-group">
+              <label>ECG Result</label>
+
+              <select
+                name="restingrelectro"
+                value={formData.restingrelectro}
+                onChange={handleChange}
+              >
+                <option value="0">Normal</option>
+                <option value="1">Abnormal</option>
+              </select>
+            </div>
+
+            {/* HEART RATE */}
+
+            <div className="input-group">
+              <label>Heart Rate</label>
+
+              <input
+                type="number"
+                name="maxheartrate"
+                value={formData.maxheartrate}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* EXERCISE ANGINA */}
+
+            <div className="input-group">
+              <label>Exercise Angina</label>
+
+              <select
+                name="exerciseangia"
+                value={formData.exerciseangia}
+                onChange={handleChange}
+              >
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+              </select>
+            </div>
+
+            {/* OLD PEAK */}
+
+            <div className="input-group">
+              <label>Old Peak</label>
+
+              <input
+                type="number"
+                step="0.1"
+                name="oldpeak"
+                value={formData.oldpeak}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* SLOPE */}
+
+            <div className="input-group">
+              <label>Slope</label>
+
+              <input
+                type="number"
+                name="slope"
+                value={formData.slope}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* MAJOR VESSELS */}
+
+            <div className="input-group">
+              <label>Major Vessels</label>
+
+              <input
+                type="number"
+                name="noofmajorvessels"
+                value={formData.noofmajorvessels}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <button
+            className={`predict-btn ${
+              loading ? "loading" : ""
+            }`}
+          >
+            {loading
+              ? "Analyzing..."
+              : "🩺 Run Prediction"}
+          </button>
+        </form>
+
+        {result && (
+          <>
+            {/* RESULT UI */}
+
+            <div className="result-box show">
+              <h2 className="result-title">
+                🩺 Prediction Result
+              </h2>
+
+              <div className="top-result-grid">
+
+                <div className="result-card big-card">
+
+                  <p className="patient-name">
+                    👤{" "}
+                    {formData.patientName ||
+                      "Unknown Patient"}
+                  </p>
+
+                  <p className="detect-text">
+                    DETECTED CONDITION
+                  </p>
+
+                  <h1 className="disease-name">
+                    ⚠️ {result.prediction}
+                  </h1>
+
+                  <p className="confidence">
+                    Risk :
+                    <span>
+                      {" "}
+                      {result.probability}%
+                    </span>
+                  </p>
+                </div>
+
+                <div className="gauge-card">
+                  <div className="gauge-circle">
+                    <div
+                      className="gauge-fill"
+                      style={{
+                        background: `conic-gradient(
+                          #2563eb ${
+                            result.probability * 3.6
+                          }deg,
+                          #1e293b 0deg
+                        )`,
+                      }}
+                    >
+                      <div className="gauge-inner">
+                        <h2>
+                          {result.probability}%
+                        </h2>
+
+                        <p>Risk</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="warning-box">
+                {getWarningMessage()}
+              </div>
+
+              <button
+                className="download-btn"
+                onClick={downloadPDF}
+              >
+                📄 Download Report
+              </button>
+            </div>
+
+            {/* PDF REPORT */}
+
+            <div
+              className="pdf-report"
+              ref={reportRef}
+              style={{ display: "none" }}
+            >
+              <div className="pdf-header">
+                <h1>
+                  CardioAI - Heart Disease Detection
+                  Report
+                </h1>
+
+                <p>
+                  AI-Powered Cardiac Health
+                  Assessment
+                </p>
+              </div>
+
+              <div className="pdf-body">
+
+                <p className="date">
+                  Generated on:{" "}
+                  {new Date().toLocaleString()}
+                </p>
+
+                {/* PATIENT INFO */}
+
+                <div className="section">
+                  <h3>Patient Information</h3>
+
+                  <table>
+                    <tbody>
+
+                      <tr>
+                        <td>Patient Name</td>
+
+                        <td>
+                          {formData.patientName ||
+                            "N/A"}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Age</td>
+
+                        <td>
+                          {formData.age} years
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Gender</td>
+
+                        <td>
+                          {formData.gender === 1
+                            ? "Male"
+                            : "Female"}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Blood Pressure</td>
+
+                        <td>
+                          {formData.restingBP}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Cholesterol</td>
+
+                        <td>
+                          {
+                            formData.serumcholestrol
+                          }
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Heart Rate</td>
+
+                        <td>
+                          {formData.maxheartrate}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* RESULT */}
+
+                <div className="section">
+                  <h3>Prediction Result</h3>
+
+                  <table>
+                    <tbody>
+
+                      <tr>
+                        <td>
+                          Detected Condition
+                        </td>
+
+                        <td>
+                          {result.prediction}
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>AI Confidence</td>
+
+                        <td>
+                          {result.probability}%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* SYMPTOMS */}
+
+                <div className="section">
+                  <h3>Symptoms Inputs</h3>
+
+                  <ul>
+
+                    <li>
+                      Chest Pain :{" "}
+                      {formData.chestpain
+                        ? "Yes"
+                        : "No"}
+                    </li>
+
+                    <li>
+                      Exercise Angina :{" "}
+                      {formData.exerciseangia
+                        ? "Yes"
+                        : "No"}
+                    </li>
+
+                    <li>
+                      High BP :{" "}
+                      {formData.restingBP > 140
+                        ? "Yes"
+                        : "No"}
+                    </li>
+
+                    <li>
+                      High Cholesterol :{" "}
+                      {formData.serumcholestrol >
+                      200
+                        ? "Yes"
+                        : "No"}
+                    </li>
+                  </ul>
+                </div>
+
+                {/* PRECAUTIONS */}
+
+                <div className="section">
+                  <h3>Precautions</h3>
+
+                  <ul>
+                    {getPrecautions().map(
+                      (item, index) => (
+                        <li key={index}>{item}</li>
+                      )
+                    )}
+                  </ul>
+                </div>
+
+                {/* DIET */}
+
+                <div className="section">
+                  <h3>Diet Recommendations</h3>
+
+                  <ul>
+                    {getDietRecommendations().map(
+                      (item, index) => (
+                        <li key={index}>{item}</li>
+                      )
+                    )}
+                  </ul>
+                </div>
+
+                {/* DISCLAIMER */}
+
+                <div className="footer-note">
+                  DISCLAIMER: This report is
+                  generated by AI and is for
+                  informational purposes only.
+                  Please consult a qualified
+                  cardiologist for proper diagnosis
+                  and treatment.
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default HeartForm;

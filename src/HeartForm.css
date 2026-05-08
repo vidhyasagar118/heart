@@ -1,0 +1,335 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial, Helvetica, sans-serif;
+  background:#020817;
+  color:white;
+}
+
+.main-container{
+  min-height:100vh;
+  padding:40px;
+}
+
+.glass-card{
+  background:#071126;
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;
+  padding:30px;
+}
+
+h1{
+  font-size:32px;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  color:#94a3b8;
+  margin-bottom:25px;
+}
+
+.divider{
+  height:8px;
+  background:white;
+  border-radius:20px;
+  margin-bottom:30px;
+}
+
+h2{
+  margin-bottom:25px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:20px;
+}
+
+.input-group{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.input-group label{
+  font-size:14px;
+  color:#cbd5e1;
+}
+
+input,
+select{
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#1e293b;
+  color:white;
+  outline:none;
+}
+
+input[type="range"]{
+  padding:0;
+}
+
+.predict-btn{
+  margin-top:30px;
+  padding:15px 25px;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.predict-btn:hover{
+  background:#1d4ed8;
+}
+
+.result-box{
+  margin-top:40px;
+}
+
+.result-card{
+  margin-top:20px;
+  background:#0f172a;
+  border-radius:20px;
+  padding:30px;
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+.result-card h1{
+  font-size:45px;
+  margin-bottom:10px;
+}
+
+.result-card span{
+  color:#38bdf8;
+  font-weight:bold;
+}
+.result-title{
+  margin-top:40px;
+  margin-bottom:25px;
+}
+
+.top-result-grid{
+  display:grid;
+  grid-template-columns:1fr 400px;
+  gap:20px;
+}
+
+.big-card{
+  min-height:220px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.detect-text{
+  color:#64748b;
+  letter-spacing:2px;
+  margin-bottom:20px;
+}
+
+.disease-name{
+  font-size:55px;
+  color:#2563eb;
+}
+
+.confidence{
+  margin-top:20px;
+  font-size:22px;
+}
+
+.confidence span{
+  color:#38bdf8;
+  font-weight:bold;
+}
+
+.gauge-card{
+  background:#0f172a;
+  border-radius:20px;
+  padding:30px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.gauge-circle{
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.gauge-fill{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.gauge-inner{
+  width:180px;
+  height:180px;
+  background:#020817;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+.gauge-inner h2{
+  font-size:40px;
+}
+
+.gauge-inner p{
+  color:#94a3b8;
+}
+
+.probability-card{
+  margin-top:30px;
+  background:#0f172a;
+  border-radius:20px;
+  padding:30px;
+}
+
+.probability-card h3{
+  margin-bottom:30px;
+}
+
+.bar-item{
+  display:grid;
+  grid-template-columns:120px 1fr 80px;
+  align-items:center;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.bar-bg{
+  width:100%;
+  height:18px;
+  background:#1e293b;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.bar-fill{
+  height:100%;
+  background:#2563eb;
+}
+
+.low{
+  background:#60a5fa;
+}
+
+.safe{
+  background:#22c55e;
+}
+
+.warning-box{
+  margin-top:30px;
+  background:#fef3c7;
+  color:#ea580c;
+  padding:22px;
+  border-radius:18px;
+  font-size:18px;
+}
+
+@media(max-width:900px){
+
+  .top-result-grid{
+    grid-template-columns:1fr;
+  }
+
+  .gauge-card{
+    width:100%;
+  }
+
+  .disease-name{
+    font-size:38px;
+  }
+
+}
+.pdf-report{
+  width:800px;
+  background:white;
+  color:black;
+  padding:40px;
+  position:absolute;
+  left:-9999px;
+  top:0;
+}
+
+.pdf-header{
+  background:#1565c0;
+  color:white;
+  padding:25px;
+  border-radius:10px;
+  margin-bottom:25px;
+}
+
+.pdf-header h1{
+  font-size:32px;
+  margin-bottom:10px;
+}
+
+.pdf-body{
+  color:black;
+}
+
+.section{
+  margin-top:25px;
+}
+
+.section h3{
+  background:#e5e7eb;
+  padding:10px;
+  border-radius:6px;
+  margin-bottom:15px;
+  color:#1565c0;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+table td{
+  border:1px solid #d1d5db;
+  padding:12px;
+}
+
+ul{
+  padding-left:20px;
+}
+
+ul li{
+  margin-bottom:10px;
+}
+
+.footer-note{
+  margin-top:30px;
+  font-size:14px;
+  color:#555;
+}
+
+.download-btn{
+  margin-top:25px;
+  padding:14px 24px;
+  border:none;
+  border-radius:10px;
+  background:#2563eb;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
