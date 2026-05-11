@@ -327,74 +327,77 @@ const HeartForm = () => {
 
             {/* CHEST PAIN */}
 
-            <div className="input-group">
-              <label>Chest Pain</label>
-
-              <select
-                name="chestpain"
-                value={formData.chestpain}
-                onChange={handleChange}
-              >
-                <option value="0">No</option>
-                <option value="1">Yes</option>
-              </select>
-            </div>
+           <div className="input-group">
+  <label>Chest Pain Type</label>
+  <select
+    name="chestpain"
+    value={formData.chestpain}
+    onChange={handleChange}
+  >
+    <option value="0">Typical Angina</option>
+    <option value="1">Atypical Angina</option>
+    <option value="2">Non-Anginal Pain</option>
+    <option value="3">Asymptomatic</option>
+  </select>
+</div>
 
             {/* BP */}
 
-            <div className="input-group">
-              <label>Blood Pressure</label>
-
-              <input
-                type="number"
-                name="restingBP"
-                value={formData.restingBP}
-                onChange={handleChange}
-              />
-            </div>
+         <div className="input-group">
+  <label>Blood Pressure (mmHg)</label>
+  <input
+    type="number"
+    name="restingBP"
+    min="80"
+    max="200"
+    value={formData.restingBP}
+    onChange={handleChange}
+  />
+  <small>Normal: 90–120 | High: &gt;140</small>
+</div>
 
             {/* CHOLESTEROL */}
-
-            <div className="input-group">
-              <label>Cholesterol</label>
-
-              <input
-                type="number"
-                name="serumcholestrol"
-                value={formData.serumcholestrol}
-                onChange={handleChange}
-              />
-            </div>
+<div className="input-group">
+  <label>Cholesterol (mg/dL)</label>
+  <input
+    type="number"
+    name="serumcholestrol"
+    min="100"
+    max="400"
+    value={formData.serumcholestrol}
+    onChange={handleChange}
+  />
+  <small>Normal: &lt;200 | Borderline: 200–239 | High: ≥240</small>
+</div>
 
             {/* BLOOD SUGAR */}
 
-            <div className="input-group">
-              <label>Blood Sugar</label>
-
-              <select
-                name="fastingbloodsugar"
-                value={formData.fastingbloodsugar}
-                onChange={handleChange}
-              >
-                <option value="0">Normal</option>
-                <option value="1">High</option>
-              </select>
-            </div>
+          <div className="input-group">
+  <label>Blood Sugar (Fasting)</label>
+  <select
+    name="fastingbloodsugar"
+    value={formData.fastingbloodsugar}
+    onChange={handleChange}
+  >
+    <option value="0">Normal (≤ 120 mg/dL)</option>
+    <option value="1">High (&gt; 120 mg/dL)</option>
+  </select>
+</div>
 
             {/* ECG */}
 
-            <div className="input-group">
-              <label>ECG Result</label>
-
-              <select
-                name="restingrelectro"
-                value={formData.restingrelectro}
-                onChange={handleChange}
-              >
-                <option value="0">Normal</option>
-                <option value="1">Abnormal</option>
-              </select>
-            </div>
+<div className="input-group">
+  <label>ECG Result</label>
+  <select
+    name="restingrelectro"
+    value={formData.restingrelectro}
+    onChange={handleChange}
+  >
+    <option value="0">Normal</option>
+    <option value="1">ST-T Wave Abnormality</option>
+    <option value="2">Left Ventricular Hypertrophy</option>
+  </select>
+</div>
 
             {/* HEART RATE */}
 
@@ -425,31 +428,34 @@ const HeartForm = () => {
             </div>
 
             {/* OLD PEAK */}
-
-            <div className="input-group">
-              <label>Old Peak</label>
-
-              <input
-                type="number"
-                step="0.1"
-                name="oldpeak"
-                value={formData.oldpeak}
-                onChange={handleChange}
-              />
-            </div>
+<div className="input-group">
+  <label>Old Peak (ST Depression)</label>
+  <input
+    type="number"
+    step="0.1"
+    min="0"
+    max="6"
+    name="oldpeak"
+    value={formData.oldpeak}
+    onChange={handleChange}
+  />
+  <small>High Risk: &gt; 2.0</small>
+</div>
 
             {/* SLOPE */}
 
-            <div className="input-group">
-              <label>Slope</label>
-
-              <input
-                type="number"
-                name="slope"
-                value={formData.slope}
-                onChange={handleChange}
-              />
-            </div>
+           <div className="input-group">
+  <label>Slope</label>
+  <select
+    name="slope"
+    value={formData.slope}
+    onChange={handleChange}
+  >
+    <option value="0">Upsloping (Normal)</option>
+    <option value="1">Flat (Warning)</option>
+    <option value="2">Downsloping (High Risk)</option>
+  </select>
+</div>
 
             {/* MAJOR VESSELS */}
 
@@ -611,30 +617,19 @@ const HeartForm = () => {
                       </tr>
 
                       <tr>
-                        <td>Blood Pressure</td>
+  <td>Blood Pressure</td>
+  <td>{formData.restingBP} mmHg</td>
+</tr>
 
-                        <td>
-                          {formData.restingBP}
-                        </td>
-                      </tr>
+<tr>
+  <td>Cholesterol</td>
+  <td>{formData.serumcholestrol} mg/dL</td>
+</tr>
 
-                      <tr>
-                        <td>Cholesterol</td>
-
-                        <td>
-                          {
-                            formData.serumcholestrol
-                          }
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td>Heart Rate</td>
-
-                        <td>
-                          {formData.maxheartrate}
-                        </td>
-                      </tr>
+<tr>
+  <td>Heart Rate</td>
+  <td>{formData.maxheartrate} bpm</td>
+</tr>
                     </tbody>
                   </table>
                 </div>
@@ -675,34 +670,21 @@ const HeartForm = () => {
 
                   <ul>
 
-                    <li>
-                      Chest Pain :{" "}
-                      {formData.chestpain
-                        ? "Yes"
-                        : "No"}
-                    </li>
+                  <li>
+  Chest Pain : {
+    ["Typical Angina", "Atypical Angina", "Non-Anginal Pain", "Asymptomatic"][formData.chestpain]
+  }
+</li>
+                   <li>
+  Exercise Angina : {formData.exerciseangia === 1 ? "Yes" : "No"}
+</li>
 
-                    <li>
-                      Exercise Angina :{" "}
-                      {formData.exerciseangia
-                        ? "Yes"
-                        : "No"}
-                    </li>
-
-                    <li>
-                      High BP :{" "}
-                      {formData.restingBP > 140
-                        ? "Yes"
-                        : "No"}
-                    </li>
-
-                    <li>
-                      High Cholesterol :{" "}
-                      {formData.serumcholestrol >
-                      200
-                        ? "Yes"
-                        : "No"}
-                    </li>
+<li>
+  High BP : {formData.restingBP > 140 ? "Yes" : "No"} ({formData.restingBP} mmHg)
+</li>
+<li>
+  High Cholesterol : {formData.serumcholestrol > 200 ? "Yes" : "No"} ({formData.serumcholestrol} mg/dL)
+</li>
                   </ul>
                 </div>
 
