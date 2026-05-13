@@ -8,6 +8,10 @@ body{
   font-family:Arial, Helvetica, sans-serif;
   background:#020817;
   color:white;
+}.heartgifdiv {
+  display: flex;
+  align-items: center;    
+  gap: 10px;                
 }
 
 .main-container{

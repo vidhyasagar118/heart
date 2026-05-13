@@ -266,7 +266,10 @@ const HeartForm = () => {
   return (
     <div className="main-container">
       <div className="glass-card">
-        <h1><img src="/heart.gif" height={"80px"} width={"80px"} alt="heart" />  Heart Disease Prediction 🫀</h1>
+        <div className="heartgifdiv">
+        <img src="/heart.gif" height={"80px"} width={"80px"} alt="heart" /> 
+                <h1> Heart Disease Prediction 🫀</h1>
+</div>
 
         <p className="subtitle">
           Fill patient details and symptoms below
