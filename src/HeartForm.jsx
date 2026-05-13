@@ -26,24 +26,23 @@ const HeartForm = () => {
 
   const [result, setResult] = useState(null);
 
-  // WARNING MESSAGE
 
   const getWarningMessage = () => {
     if (!result) return "";
 
-    if (result.probability >= 80) {
+    if (result.risk_probability >= 80) {
       return "🚨 Critical Risk Detected! Immediate medical attention is strongly recommended.";
     }
 
-    if (result.probability >= 60) {
+    if (result.risk_probability >= 60) {
       return "⚠️ High heart disease risk detected. Please consult a cardiologist soon.";
     }
 
-    if (result.probability >= 40) {
+    if (result.risk_probability >= 40) {
       return "🩺 Moderate risk detected. Maintain a healthy diet and regular exercise.";
     }
 
-    if (result.probability >= 20) {
+    if (result.risk_probability >= 20) {
       return "💡 Mild risk detected. Regular health checkups are recommended.";
     }
 
@@ -55,7 +54,7 @@ const HeartForm = () => {
   const getPrecautions = () => {
     if (!result) return [];
 
-    if (result.probability >= 80) {
+    if (result.risk_probability >= 80) {
       return [
         "Immediately consult a cardiologist",
         "Avoid heavy physical activities",
@@ -66,7 +65,7 @@ const HeartForm = () => {
       ];
     }
 
-    if (result.probability >= 60) {
+    if (result.risk_probability >= 60) {
       return [
         "Schedule a full cardiac checkup",
         "Walk 20-30 minutes daily",
@@ -77,7 +76,7 @@ const HeartForm = () => {
       ];
     }
 
-    if (result.probability >= 40) {
+    if (result.risk_probability >= 40) {
       return [
         "Exercise regularly",
         "Reduce junk food intake",
@@ -88,7 +87,7 @@ const HeartForm = () => {
       ];
     }
 
-    if (result.probability >= 20) {
+    if (result.risk_probability >= 20) {
       return [
         "Continue regular health checkups",
         "Maintain active lifestyle",
@@ -112,7 +111,7 @@ const HeartForm = () => {
   const getDietRecommendations = () => {
     if (!result) return [];
 
-    if (result.probability >= 80) {
+    if (result.risk_probability >= 80) {
       return [
         "Strict low-fat diet",
         "Avoid fried and processed foods",
@@ -123,7 +122,7 @@ const HeartForm = () => {
       ];
     }
 
-    if (result.probability >= 60) {
+    if (result.risk_probability >= 60) {
       return [
         "Increase fruits and vegetables",
         "Eat lean protein foods",
@@ -134,7 +133,7 @@ const HeartForm = () => {
       ];
     }
 
-    if (result.probability >= 40) {
+    if (result.risk_probability >= 40) {
       return [
         "Balanced homemade meals",
         "Add fruits to breakfast",
@@ -145,7 +144,7 @@ const HeartForm = () => {
       ];
     }
 
-    if (result.probability >= 20) {
+    if (result.risk_probability >= 20) {
       return [
         "Maintain balanced diet",
         "Eat seasonal fruits",
@@ -522,7 +521,7 @@ const HeartForm = () => {
                     >
                       <div className="gauge-inner">
                         <h2>
-                          {result.probability}%
+                          {result.risk_probability}%
                         </h2>
 
                         <p>Risk</p>
