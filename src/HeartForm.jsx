@@ -494,14 +494,14 @@ const HeartForm = () => {
                   </p>
 
                   <h1 className="disease-name">
-                    ⚠️ {result.prediction}
+                    ⚠️ {result.risk_probability}
                   </h1>
 
                   <p className="confidence">
                     Risk :
                     <span>
                       {" "}
-                      {result.probability}%
+                      {result.risk_probability }%
                     </span>
                   </p>
                 </div>
@@ -513,7 +513,7 @@ const HeartForm = () => {
                       style={{
                         background: `conic-gradient(
                           #2563eb ${
-                            result.probability * 3.6
+                            result.risk_probability * 3.6
                           }deg,
                           #1e293b 0deg
                         )`,
@@ -636,7 +636,7 @@ const HeartForm = () => {
                         </td>
 
                         <td>
-                          {result.prediction}
+                          {result.risk_probability }
                         </td>
                       </tr>
 
@@ -644,7 +644,7 @@ const HeartForm = () => {
                         <td>AI Confidence</td>
 
                         <td>
-                          {result.probability}%
+                          {result.risk_probability}%
                         </td>
                       </tr>
                     </tbody>
