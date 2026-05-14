@@ -1,3 +1,7 @@
+// ==========================
+// HeartForm.jsx (FULL FIXED)
+// ==========================
+
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
@@ -5,6 +9,7 @@ import html2canvas from "html2canvas";
 import "./HeartForm.css";
 
 const HeartForm = () => {
+
   const reportRef = useRef();
 
   const [loading, setLoading] = useState(false);
@@ -22,39 +27,47 @@ const HeartForm = () => {
     exerciseangia: 0,
     oldpeak: 0,
     slope: 1,
+    noofmajorvessels: 0,
   });
 
   const [result, setResult] = useState(null);
 
+  // ==========================
+  // WARNING MESSAGE
+  // ==========================
 
   const getWarningMessage = () => {
+
     if (!result) return "";
 
-    if (result.risk_probability >= 80) {
+    const prob = Number(result.risk_probability ?? 0);
+
+    if (prob >= 80)
       return "🚨 Critical Risk Detected! Immediate medical attention is strongly recommended.";
-    }
 
-    if (result.risk_probability >= 60) {
+    if (prob >= 60)
       return "⚠️ High heart disease risk detected. Please consult a cardiologist soon.";
-    }
 
-    if (result.risk_probability >= 40) {
+    if (prob >= 40)
       return "🩺 Moderate risk detected. Maintain a healthy diet and regular exercise.";
-    }
 
-    if (result.risk_probability >= 20) {
+    if (prob >= 20)
       return "💡 Mild risk detected. Regular health checkups are recommended.";
-    }
 
     return "✅ Low risk detected. Keep maintaining a healthy lifestyle.";
   };
 
-  // DYNAMIC PRECAUTIONS
+  // ==========================
+  // PRECAUTIONS
+  // ==========================
 
   const getPrecautions = () => {
+
     if (!result) return [];
 
-    if (result.risk_probability >= 80) {
+    const prob = Number(result.risk_probability ?? 0);
+
+    if (prob >= 80)
       return [
         "Immediately consult a cardiologist",
         "Avoid heavy physical activities",
@@ -63,9 +76,8 @@ const HeartForm = () => {
         "Avoid smoking and alcohol",
         "Maintain emergency medical support access",
       ];
-    }
 
-    if (result.risk_probability >= 60) {
+    if (prob >= 60)
       return [
         "Schedule a full cardiac checkup",
         "Walk 20-30 minutes daily",
@@ -74,9 +86,8 @@ const HeartForm = () => {
         "Monitor cholesterol regularly",
         "Sleep at least 7 hours daily",
       ];
-    }
 
-    if (result.risk_probability >= 40) {
+    if (prob >= 40)
       return [
         "Exercise regularly",
         "Reduce junk food intake",
@@ -85,9 +96,8 @@ const HeartForm = () => {
         "Avoid excessive sugar",
         "Maintain healthy body weight",
       ];
-    }
 
-    if (result.risk_probability >= 20) {
+    if (prob >= 20)
       return [
         "Continue regular health checkups",
         "Maintain active lifestyle",
@@ -95,7 +105,6 @@ const HeartForm = () => {
         "Avoid stress",
         "Drink enough water",
       ];
-    }
 
     return [
       "Maintain healthy lifestyle",
@@ -106,12 +115,17 @@ const HeartForm = () => {
     ];
   };
 
-  // DYNAMIC DIET
+  // ==========================
+  // DIET RECOMMENDATIONS
+  // ==========================
 
   const getDietRecommendations = () => {
+
     if (!result) return [];
 
-    if (result.risk_probability >= 80) {
+    const prob = Number(result.risk_probability ?? 0);
+
+    if (prob >= 80)
       return [
         "Strict low-fat diet",
         "Avoid fried and processed foods",
@@ -120,9 +134,8 @@ const HeartForm = () => {
         "Avoid sugary drinks",
         "Reduce sodium intake",
       ];
-    }
 
-    if (result.risk_probability >= 60) {
+    if (prob >= 60)
       return [
         "Increase fruits and vegetables",
         "Eat lean protein foods",
@@ -131,9 +144,8 @@ const HeartForm = () => {
         "Drink green tea",
         "Limit fast food",
       ];
-    }
 
-    if (result.risk_probability >= 40) {
+    if (prob >= 40)
       return [
         "Balanced homemade meals",
         "Add fruits to breakfast",
@@ -142,9 +154,8 @@ const HeartForm = () => {
         "Reduce oily snacks",
         "Drink 2-3 liters water daily",
       ];
-    }
 
-    if (result.risk_probability >= 20) {
+    if (prob >= 20)
       return [
         "Maintain balanced diet",
         "Eat seasonal fruits",
@@ -152,7 +163,6 @@ const HeartForm = () => {
         "Drink enough water",
         "Limit sugar intake",
       ];
-    }
 
     return [
       "Continue healthy eating habits",
@@ -163,8 +173,12 @@ const HeartForm = () => {
     ];
   };
 
+  // ==========================
+  // HANDLE INPUT CHANGE
+  // ==========================
 
   const handleChange = (e) => {
+
     const { name, value } = e.target;
 
     setFormData({
@@ -176,32 +190,63 @@ const HeartForm = () => {
     });
   };
 
+  // ==========================
   // SUBMIT
+  // ==========================
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     setLoading(true);
 
     try {
+
       const res = await axios.post(
-        "https://heart-backend-n7je.onrender.com/predict",
-        formData
+        "http://127.0.0.1:5000/predict",
+        {
+          age: formData.age,
+          gender: formData.gender,
+          chestpain: formData.chestpain,
+          restingBP: formData.restingBP,
+          serumcholestrol: formData.serumcholestrol,
+          fastingbloodsugar: formData.fastingbloodsugar,
+          restingrelectro: formData.restingrelectro,
+          maxheartrate: formData.maxheartrate,
+          exerciseangia: formData.exerciseangia,
+          oldpeak: formData.oldpeak,
+          slope: formData.slope,
+        }
       );
 
-      setTimeout(() => {
-        setResult(res.data);
-        setLoading(false);
-      }, 800);
+      console.log("API Response:", res.data);
+
+      setResult({
+        prediction: res.data.risk_category,
+        risk_probability: Number(
+          res.data.risk_percentage
+        ).toFixed(2),
+        safe_probability: (
+          100 - res.data.risk_percentage
+        ).toFixed(2),
+      });
+
+      setLoading(false);
+
     } catch (err) {
+
       console.log(err);
+
       setLoading(false);
     }
   };
 
+  // ==========================
   // DOWNLOAD PDF
+  // ==========================
 
   const downloadPDF = async () => {
+
     const input = reportRef.current;
 
     input.style.display = "block";
@@ -240,6 +285,7 @@ const HeartForm = () => {
     heightLeft -= pageHeight;
 
     while (heightLeft > 0) {
+
       position = heightLeft - imgHeight;
 
       pdf.addPage();
@@ -262,9 +308,21 @@ const HeartForm = () => {
   };
 
   return (
+
     <div className="main-container">
+
       <div className="glass-card">
-        <h1><img src="/heart.gif" height={"80px"} width={"80px"} alt="heart" />  Heart Disease Prediction 🫀</h1>
+
+        <h1>
+          <img
+            src="/heart.gif"
+            height={"80px"}
+            width={"80px"}
+            alt="heart"
+          />
+
+          Heart Disease Prediction 🫀
+        </h1>
 
         <p className="subtitle">
           Fill patient details and symptoms below
@@ -275,11 +333,11 @@ const HeartForm = () => {
         <h2>👤 Patient Information</h2>
 
         <form onSubmit={handleSubmit}>
+
           <div className="grid">
 
-            {/* PATIENT NAME */}
-
             <div className="input-group">
+
               <label>Patient Name</label>
 
               <input
@@ -291,9 +349,8 @@ const HeartForm = () => {
               />
             </div>
 
-            {/* AGE */}
-
             <div className="input-group">
+
               <label>Age</label>
 
               <input
@@ -308,9 +365,8 @@ const HeartForm = () => {
               <span>{formData.age}</span>
             </div>
 
-            {/* GENDER */}
-
             <div className="input-group">
+
               <label>Gender</label>
 
               <select
@@ -323,83 +379,100 @@ const HeartForm = () => {
               </select>
             </div>
 
-            {/* CHEST PAIN */}
+            <div className="input-group">
 
-           <div className="input-group">
-  <label>Chest Pain Type</label>
-  <select
-    name="chestpain"
-    value={formData.chestpain}
-    onChange={handleChange}
-  >
-    <option value="0">Typical Angina</option>
-    <option value="1">Atypical Angina</option>
-    <option value="2">Non-Anginal Pain</option>
-    <option value="3">Asymptomatic</option>
-  </select>
-</div>
+              <label>Chest Pain Type</label>
 
-            {/* BP */}
-
-         <div className="input-group">
-  <label>Blood Pressure (mmHg)</label>
-  <input
-    type="number"
-    name="restingBP"
-    min="80"
-    max="200"
-    value={formData.restingBP}
-    onChange={handleChange}
-  />
-  <small>Normal: 90–120 | High: &gt;140</small>
-</div>
-
-            {/* CHOLESTEROL */}
-<div className="input-group">
-  <label>Cholesterol (mg/dL)</label>
-  <input
-    type="number"
-    name="serumcholestrol"
-    min="100"
-    max="400"
-    value={formData.serumcholestrol}
-    onChange={handleChange}
-  />
-  <small>Normal: &lt;200 | Borderline: 200–239 | High: ≥240</small>
-</div>
-
-            {/* BLOOD SUGAR */}
-
-          <div className="input-group">
-  <label>Blood Sugar (Fasting)</label>
-  <select
-    name="fastingbloodsugar"
-    value={formData.fastingbloodsugar}
-    onChange={handleChange}
-  >
-    <option value="0">Normal (≤ 120 mg/dL)</option>
-    <option value="1">High (&gt; 120 mg/dL)</option>
-  </select>
-</div>
-
-            {/* ECG */}
-
-<div className="input-group">
-  <label>ECG Result</label>
-  <select
-    name="restingrelectro"
-    value={formData.restingrelectro}
-    onChange={handleChange}
-  >
-    <option value="0">Normal</option>
-    <option value="1">ST-T Wave Abnormality</option>
-    <option value="2">Left Ventricular Hypertrophy</option>
-  </select>
-</div>
-
-            {/* HEART RATE */}
+              <select
+                name="chestpain"
+                value={formData.chestpain}
+                onChange={handleChange}
+              >
+                <option value="0">Typical Angina</option>
+                <option value="1">Atypical Angina</option>
+                <option value="2">Non-Anginal Pain</option>
+                <option value="3">Asymptomatic</option>
+              </select>
+            </div>
 
             <div className="input-group">
+
+              <label>Blood Pressure (mmHg)</label>
+
+              <input
+                type="number"
+                name="restingBP"
+                min="80"
+                max="200"
+                value={formData.restingBP}
+                onChange={handleChange}
+              />
+
+              <small>
+                Normal: 90–120 | High: &gt;140
+              </small>
+            </div>
+
+            <div className="input-group">
+
+              <label>Cholesterol (mg/dL)</label>
+
+              <input
+                type="number"
+                name="serumcholestrol"
+                min="100"
+                max="400"
+                value={formData.serumcholestrol}
+                onChange={handleChange}
+              />
+
+              <small>
+                Normal: &lt;200 | Borderline: 200–239 | High: ≥240
+              </small>
+            </div>
+
+            <div className="input-group">
+
+              <label>Blood Sugar (Fasting)</label>
+
+              <select
+                name="fastingbloodsugar"
+                value={formData.fastingbloodsugar}
+                onChange={handleChange}
+              >
+                <option value="0">
+                  Normal (≤ 120 mg/dL)
+                </option>
+
+                <option value="1">
+                  High (&gt; 120 mg/dL)
+                </option>
+              </select>
+            </div>
+
+            <div className="input-group">
+
+              <label>ECG Result</label>
+
+              <select
+                name="restingrelectro"
+                value={formData.restingrelectro}
+                onChange={handleChange}
+              >
+                <option value="0">Normal</option>
+
+                <option value="1">
+                  ST-T Wave Abnormality
+                </option>
+
+                <option value="2">
+                  Left Ventricular Hypertrophy
+                </option>
+              </select>
+            </div>
+
+            <div className="input-group">
+
               <label>Heart Rate</label>
 
               <input
@@ -410,9 +483,8 @@ const HeartForm = () => {
               />
             </div>
 
-            {/* EXERCISE ANGINA */}
-
             <div className="input-group">
+
               <label>Exercise Angina</label>
 
               <select
@@ -421,42 +493,64 @@ const HeartForm = () => {
                 onChange={handleChange}
               >
                 <option value="0">No</option>
+
                 <option value="1">Yes</option>
               </select>
             </div>
 
-            {/* OLD PEAK */}
-<div className="input-group">
-  <label>Old Peak (ST Depression)</label>
-  <input
-    type="number"
-    step="0.1"
-    min="0"
-    max="6"
-    name="oldpeak"
-    value={formData.oldpeak}
-    onChange={handleChange}
-  />
-  <small>High Risk: &gt; 2.0</small>
-</div>
+            <div className="input-group">
 
-            {/* SLOPE */}
+              <label>Old Peak (ST Depression)</label>
 
-           <div className="input-group">
-  <label>Slope</label>
-  <select
-    name="slope"
-    value={formData.slope}
-    onChange={handleChange}
-  >
-    <option value="0">Upsloping (Normal)</option>
-    <option value="1">Flat (Warning)</option>
-    <option value="2">Downsloping (High Risk)</option>
-  </select>
-</div>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="6"
+                name="oldpeak"
+                value={formData.oldpeak}
+                onChange={handleChange}
+              />
 
-            {/* MAJOR VESSELS */}
+              <small>
+                High Risk: &gt; 2.0
+              </small>
+            </div>
 
+            <div className="input-group">
+
+              <label>Slope</label>
+
+              <select
+                name="slope"
+                value={formData.slope}
+                onChange={handleChange}
+              >
+                <option value="0">
+                  Upsloping (Normal)
+                </option>
+
+                <option value="1">
+                  Flat (Warning)
+                </option>
+
+                <option value="2">
+                  Downsloping (High Risk)
+                </option>
+              </select>
+            </div>
+
+            <div className="input-group">
+
+              <label>Major Vessels</label>
+
+              <input
+                type="number"
+                name="noofmajorvessels"
+                value={formData.noofmajorvessels}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
           <button
@@ -472,9 +566,9 @@ const HeartForm = () => {
 
         {result && (
           <>
-            {/* RESULT UI */}
 
             <div className="result-box show">
+
               <h2 className="result-title">
                 🩺 Prediction Result
               </h2>
@@ -494,37 +588,49 @@ const HeartForm = () => {
                   </p>
 
                   <h1 className="disease-name">
-                    ⚠️ {result.risk_probability}
+                    {result.prediction}
                   </h1>
 
                   <p className="confidence">
+
                     Risk :
+
                     <span>
                       {" "}
-                      {result.risk_probability }%
+                      {Number(
+                        result?.risk_probability ?? 0
+                      ).toFixed(2)}%
                     </span>
                   </p>
                 </div>
 
                 <div className="gauge-card">
+
                   <div className="gauge-circle">
+
                     <div
                       className="gauge-fill"
                       style={{
                         background: `conic-gradient(
                           #2563eb ${
-                            result.risk_probability * 3.6
+                            Number(
+                              result?.risk_probability ?? 0
+                            ) * 3.6
                           }deg,
                           #1e293b 0deg
                         )`,
                       }}
                     >
                       <div className="gauge-inner">
+
                         <h2>
-                          {result.risk_probability}%
+                          {Number(
+                            result?.risk_probability ?? 0
+                          ).toFixed(2)}%
                         </h2>
 
                         <p>Risk</p>
+
                       </div>
                     </div>
                   </div>
@@ -543,22 +649,20 @@ const HeartForm = () => {
               </button>
             </div>
 
-            {/* PDF REPORT */}
-
             <div
               className="pdf-report"
               ref={reportRef}
               style={{ display: "none" }}
             >
+
               <div className="pdf-header">
+
                 <h1>
-                  CardioAI - Heart Disease Detection
-                  Report
+                  CardioAI - Heart Disease Detection Report
                 </h1>
 
                 <p>
-                  AI-Powered Cardiac Health
-                  Assessment
+                  AI-Powered Cardiac Health Assessment
                 </p>
               </div>
 
@@ -569,29 +673,26 @@ const HeartForm = () => {
                   {new Date().toLocaleString()}
                 </p>
 
-                {/* PATIENT INFO */}
-
                 <div className="section">
+
                   <h3>Patient Information</h3>
 
                   <table>
+
                     <tbody>
 
                       <tr>
                         <td>Patient Name</td>
 
                         <td>
-                          {formData.patientName ||
-                            "N/A"}
+                          {formData.patientName || "N/A"}
                         </td>
                       </tr>
 
                       <tr>
                         <td>Age</td>
 
-                        <td>
-                          {formData.age} years
-                        </td>
+                        <td>{formData.age} years</td>
                       </tr>
 
                       <tr>
@@ -605,114 +706,158 @@ const HeartForm = () => {
                       </tr>
 
                       <tr>
-  <td>Blood Pressure</td>
-  <td>{formData.restingBP} mmHg</td>
-</tr>
+                        <td>Blood Pressure</td>
 
-<tr>
-  <td>Cholesterol</td>
-  <td>{formData.serumcholestrol} mg/dL</td>
-</tr>
+                        <td>
+                          {formData.restingBP} mmHg
+                        </td>
+                      </tr>
 
-<tr>
-  <td>Heart Rate</td>
-  <td>{formData.maxheartrate} bpm</td>
-</tr>
+                      <tr>
+                        <td>Cholesterol</td>
+
+                        <td>
+                          {formData.serumcholestrol} mg/dL
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Heart Rate</td>
+
+                        <td>
+                          {formData.maxheartrate} bpm
+                        </td>
+                      </tr>
+
                     </tbody>
                   </table>
                 </div>
 
-                {/* RESULT */}
-
                 <div className="section">
+
                   <h3>Prediction Result</h3>
 
                   <table>
+
                     <tbody>
 
                       <tr>
-                        <td>
-                          Detected Condition
-                        </td>
+                        <td>Detected Condition</td>
 
                         <td>
-                          {result.risk_probability }
+                          {result.prediction}
                         </td>
                       </tr>
 
                       <tr>
-                        <td>AI Confidence</td>
+                        <td>Risk Percentage</td>
 
                         <td>
-                          {result.risk_probability}%
+                          {Number(
+                            result.risk_probability
+                          ).toFixed(2)}%
                         </td>
                       </tr>
+
+                      <tr>
+                        <td>Safe Percentage</td>
+
+                        <td>
+                          {Number(
+                            result.safe_probability
+                          ).toFixed(2)}%
+                        </td>
+                      </tr>
+
                     </tbody>
                   </table>
                 </div>
 
-                {/* SYMPTOMS */}
-
                 <div className="section">
+
                   <h3>Symptoms Inputs</h3>
 
                   <ul>
 
-                  <li>
-  Chest Pain : {
-    ["Typical Angina", "Atypical Angina", "Non-Anginal Pain", "Asymptomatic"][formData.chestpain]
-  }
-</li>
-                   <li>
-  Exercise Angina : {formData.exerciseangia === 1 ? "Yes" : "No"}
-</li>
+                    <li>
+                      Chest Pain :
+                      {
+                        [
+                          "Typical Angina",
+                          "Atypical Angina",
+                          "Non-Anginal Pain",
+                          "Asymptomatic",
+                        ][formData.chestpain]
+                      }
+                    </li>
 
-<li>
-  High BP : {formData.restingBP > 140 ? "Yes" : "No"} ({formData.restingBP} mmHg)
-</li>
-<li>
-  High Cholesterol : {formData.serumcholestrol > 200 ? "Yes" : "No"} ({formData.serumcholestrol} mg/dL)
-</li>
+                    <li>
+                      Exercise Angina :
+                      {formData.exerciseangia === 1
+                        ? " Yes"
+                        : " No"}
+                    </li>
+
+                    <li>
+                      High BP :
+                      {formData.restingBP > 140
+                        ? " Yes"
+                        : " No"}
+                      ({formData.restingBP} mmHg)
+                    </li>
+
+                    <li>
+                      High Cholesterol :
+                      {formData.serumcholestrol > 200
+                        ? " Yes"
+                        : " No"}
+                      ({formData.serumcholestrol} mg/dL)
+                    </li>
+
                   </ul>
                 </div>
 
-                {/* PRECAUTIONS */}
-
                 <div className="section">
+
                   <h3>Precautions</h3>
 
                   <ul>
+
                     {getPrecautions().map(
                       (item, index) => (
-                        <li key={index}>{item}</li>
+                        <li key={index}>
+                          {item}
+                        </li>
                       )
                     )}
+
                   </ul>
                 </div>
 
-                {/* DIET */}
-
                 <div className="section">
+
                   <h3>Diet Recommendations</h3>
 
                   <ul>
+
                     {getDietRecommendations().map(
                       (item, index) => (
-                        <li key={index}>{item}</li>
+                        <li key={index}>
+                          {item}
+                        </li>
                       )
                     )}
+
                   </ul>
                 </div>
 
-                {/* DISCLAIMER */}
-
                 <div className="footer-note">
-                  DISCLAIMER: This report is
-                  generated by AI and is for
-                  informational purposes only.
-                  Please consult a qualified
-                  cardiologist for proper diagnosis
-                  and treatment.
+
+                  DISCLAIMER: This report is generated by AI
+                  and is for informational purposes only.
+                  Please consult a qualified cardiologist
+                  for proper diagnosis and treatment.
+
                 </div>
               </div>
             </div>
