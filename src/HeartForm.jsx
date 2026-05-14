@@ -27,7 +27,6 @@ const HeartForm = () => {
     exerciseangia: 0,
     oldpeak: 0,
     slope: 1,
-    noofmajorvessels: 0,
   });
 
   const [result, setResult] = useState(null);
@@ -540,17 +539,7 @@ const HeartForm = () => {
               </select>
             </div>
 
-            <div className="input-group">
-
-              <label>Major Vessels</label>
-
-              <input
-                type="number"
-                name="noofmajorvessels"
-                value={formData.noofmajorvessels}
-                onChange={handleChange}
-              />
-            </div>
+          
           </div>
 
           <button
